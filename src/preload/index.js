@@ -1,0 +1,29 @@
+const { ipcRenderer } = require('electron')
+import { contextBridge } from 'electron'
+import { electronAPI } from '@electron-toolkit/preload'
+
+const api = {}
+
+// Use `contextBridge` APIs to expose Electron APIs to
+// renderer only if context isolation is enabled, otherwise
+// just add to the DOM global.
+if (process.contextIsolated) {
+  try {
+    contextBridge.exposeInMainWorld('electron', {
+      folder: {
+        select: () => ipcRenderer.invoke('select-folder'),
+        get: () => ipcRenderer.invoke('get-folder-path'),
+      },
+      json: {
+        read: (filename) => ipcRenderer.invoke('read-json', filename),
+        write: (filename, data) => ipcRenderer.invoke('write-json', filename, data),
+      }
+    })
+    contextBridge.exposeInMainWorld('api', api)
+  } catch (error) {
+    console.error(error)
+  }
+} else {
+  window.electron = electronAPI
+  window.api = api
+}

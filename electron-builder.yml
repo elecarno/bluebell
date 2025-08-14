@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: fman-ev
+productName: bluebell
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: fman-ev
+  executableName: bluebell
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

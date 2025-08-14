@@ -1,9 +1,9 @@
 {
   "name": "bluebell",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A personal finance manager that prioritises data control and organisation. ",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "elecarno.com",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --plugin prettier-plugin-svelte --write .",

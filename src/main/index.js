@@ -3,8 +3,12 @@ const { join } = require('path')
 const { electronApp, optimizer, is } = require('@electron-toolkit/utils')
 const fs = require('fs')
 const path = require('path')
-import icon from '../../resources/icon.png?asset' // This may also need to be adjusted depending on your build setup
 const Store = require('electron-store')
+
+const iconPath =
+  is.dev
+    ? path.join(__dirname, '../../resources/icon.png') // dev
+    : path.join(process.resourcesPath, 'icon.png')     // after build
 
 const store = new Store()
 let designatedFolder = store.get('dataFolder') || ''
@@ -12,11 +16,12 @@ let designatedFolder = store.get('dataFolder') || ''
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1800,
+    width: 1600,
     height: 900,
+    icon: iconPath,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon: iconPath } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false

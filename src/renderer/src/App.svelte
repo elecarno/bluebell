@@ -26,6 +26,8 @@
   let show_add_acc = false
   let show_add_pay = false
   let show_edit_tr = false
+  let show_edit_acc = false
+  let show_edit_pay = false
 
   let show_stats = false
 
@@ -224,7 +226,11 @@
     edit_desc = tr_data.description
     edit_date = tr_data.timestamp
 
+    show_add_acc = false
+    show_add_pay = false
     show_edit_tr = true
+    show_edit_pay = false
+    show_edit_acc = false
   }
 
   function edit_tr_submit(tr) {
@@ -243,6 +249,67 @@
     transactions[tr] = updated_tr
     console.log(transactions)
     update_left_panel()
+    save_data()
+  }
+
+  // EDIT ACCOUNT / PAYEE
+  let edit_acc_id = 0
+  let edit_acc_name = ""
+  let edit_acc_col = "#4b4b4b"
+
+  let edit_pay_id = 0
+  let edit_pay_name = ""
+  let edit_pay_col = "#4b4b4b"
+
+  function edit_acc_open(acc) {
+    let acc_data = accounts[acc]
+
+    edit_acc_id = acc
+    edit_acc_name = acc_data.name
+    edit_acc_col = acc_data.colour
+
+    show_add_acc = false
+    show_add_pay = false
+    show_edit_tr = false
+    show_edit_pay = false
+    show_edit_acc = true
+  }
+
+  function edit_acc_submit() {
+    let edited_acc = {
+      "name": edit_acc_name,
+      "colour": edit_acc_col
+    }
+
+    accounts[edit_acc_id] = edited_acc
+    console.log(accounts)
+
+    save_data()
+  }
+
+  function edit_pay_open(pay) {
+    let pay_data = payees[pay]
+
+    edit_pay_id = pay
+    edit_pay_name = pay_data.name
+    edit_pay_col = pay_data.colour
+
+    show_add_acc = false
+    show_add_pay = false
+    show_edit_tr = false
+    show_edit_pay = true
+    show_edit_acc = false
+  }
+
+  function edit_pay_submit() {
+    let edited_pay = {
+      "name": edit_pay_name,
+      "colour": edit_pay_col
+    }
+
+    payees[edit_pay_id] = edited_pay
+    console.log(payees)
+
     save_data()
   }
 
@@ -371,16 +438,18 @@
               <hr>
               <div class="con-scrollbox">
                 {#each Object.keys(accounts) as acc}
-                  <button class="btn-account" 
-                          on:click={() => {select_account = acc; edit_account = acc}}
-                          style="background-color: {accounts[acc].colour}">
-                    <h3 style="margin: 0;">{accounts[acc].name}</h3>
-                    <span>Total (GBP): {calc_total_base(calc_acc_totals(acc)).toFixed(2)}</span>
+                  <div class="btn-account" style="background-color: {accounts[acc].colour}">
+                    <div style="display: flex; flex-direction: row; gap: 4px">
+                      <h3 style="margin: 0; width: 100%">{accounts[acc].name}</h3>
+                      <button on:click={() => {select_account = acc; edit_account = acc}}>Set</button>
+                      <button on:click={() => {edit_acc_open(acc)}}>Edit</button>
+                    </div>
+                    <span>Total ({fx.base}): {calc_total_base(calc_acc_totals(acc)).toFixed(2)}</span>
                     <hr>
                     {#each Object.keys(calc_acc_totals(acc)) as cur}
                       <span>{cur}: {calc_acc_totals(acc)[cur].toFixed(2)}</span><br>
                     {/each}
-                  </button>
+                  </div>
                 {/each}
               </div>
             </div>
@@ -392,13 +461,15 @@
               <hr>
               <div class="con-scrollbox">
                 {#each Object.keys(payees) as pay}
-                  <button class="btn-payee" 
-                          on:click={() => {select_payee = pay; edit_payee = pay}}
-                          style="background-color: {payees[pay].colour}">
-                    <p style="margin-top: 0; margin-bottom: 4px;"><b>{payees[pay].name}</b></p>
+                  <div class="btn-payee" style="background-color: {payees[pay].colour}">
+                    <div style="display: flex; flex-direction: row; gap: 4px">
+                      <p style="margin-top: 0; margin-bottom: 4px; width: 100%"><b>{payees[pay].name}</b></p>
+                      <button on:click={() => {select_payee = pay; edit_payee = pay}}>Set</button>
+                      <button on:click={() => {edit_pay_open(pay)}}>Edit</button>
+                    </div>
                     <span>Sen: {Math.abs(calc_pay_totals(pay)["exp"]).toFixed(2)}</span><br>
                     <span>Rec: {calc_pay_totals(pay)["inc"].toFixed(2)}</span>
-                  </button>
+                </div>
                 {/each}
               </div>
             </div>
@@ -408,19 +479,24 @@
         <!-- TRANSACTIONS -->
         <div class="pan-transactions">
           <h3>Transactions</h3>
-          <div class="con-tr-add">
-            <span>Account: <b>{get_acc_name(select_account)}</b></span>
-            <span>Payee: <b>{get_pay_name(select_payee)}</b></span>
-            <br>
-            <div style="display: flex; flex-direction: row; gap: 12px; margin-top: 6px">
-              <span>Currency: </span><input type="text" bind:value={select_currency}>
-              <span style="margin-left: 8px">Amount: </span><input type="number" bind:value={select_amount}>
-              <span style="margin-left: 8px">Tags: </span><input type="text" bind:value={select_tags}>
-              <span style="margin-left: 8px">Date: </span><input type="text" bind:value={select_date}>
-              <button style="width: 100px;" on:click={() => add_transaction()}>Add</button>
+          <div style="display: flex; flex-direction: row; gap: 12px; justify-content: stretch;">
+            <div>
+              <div style="display: flex; flex-direction: row; gap: 12px; margin-top: 6px;">
+                <span>Account: <b>{get_acc_name(select_account)}</b></span>
+                <span>Payee: <b>{get_pay_name(select_payee)}</b></span>
+              </div>
+              <div style="display: flex; flex-direction: row; gap: 12px; margin-top: 6px;">
+                <select>
+                  {#each Object.keys(fx.rates) as cur}
+                    <option value={cur}>{cur}</option>
+                  {/each}
+                </select>
+                <input type="number" bind:value={select_amount}>
+                <span style="margin-left: 8px">Tags: </span><input type="text" bind:value={select_tags}>
+                <span style="margin-left: 8px">Date: </span><input type="date" bind:value={select_date}>
+              </div>
             </div>
-            <!-- <br> -->
-            <!-- <span>Description: </span><textarea>{select_desc}</textarea> -->
+            <button style="width: 100px;" on:click={() => add_transaction()}>Add</button>
           </div>
           <hr>
 
@@ -499,6 +575,35 @@
             <hr>
             <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {edit_tr_submit(edit_id)}}>Submit</button>
             <button style="margin-bottom: 24px;" on:click={() => {show_edit_tr = false}}>Cancel</button>
+          </div>
+        </div>
+        {/if}
+
+
+        <!-- Account Edit -->
+        {#if show_edit_acc}
+        <div class="bg-darken" style="background-color: rgba(0, 0, 0, 0); pointer-events: none;">
+          <div class="pan-dialog" style="pointer-events: all;">
+            <h2>Edit Account</h2>
+            <span>Name </span><input type="text" bind:value={edit_acc_name}>
+            <ColorPicker bind:hex={edit_acc_col}/>
+            <hr>
+            <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {edit_acc_submit()}}>Submit</button>
+            <button style="margin-bottom: 24px;" on:click={() => {show_edit_acc = false}}>Close</button>
+          </div>
+        </div>
+        {/if}
+
+        <!-- Payee Edit -->
+        {#if show_edit_pay}
+        <div class="bg-darken" style="background-color: rgba(0, 0, 0, 0); pointer-events: none;">
+          <div class="pan-dialog" style="pointer-events: all;">
+            <h2>Edit Payee</h2>
+            <span>Name </span><input type="text" bind:value={edit_pay_name}>
+            <ColorPicker bind:hex={edit_pay_col}/>
+            <hr>
+            <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {edit_pay_submit()}}>Submit</button>
+            <button style="margin-bottom: 24px;" on:click={() => {show_edit_pay = false}}>Close</button>
           </div>
         </div>
         {/if}
@@ -628,8 +733,17 @@
   padding: 8px;
   border-radius: 8px;
   margin-bottom: 4px;
-  width: 100%;
+  width: 90%;
   text-align: left;
+}
+.btn-account button,
+.btn-payee button {
+  border: gray 1px solid;
+  width: 45px;
+}
+.btn-account button:hover,
+.btn-payee button:hover {
+  background-color: #333;
 }
 
 .pan-acc-pay {

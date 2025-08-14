@@ -11,35 +11,35 @@
     "name": "(Supermarket)",
     "colour": "#4b4b4b"
   },
-  "4": {
+  "3": {
     "name": "(Pharmacy)",
     "colour": "#4b4b4b"
   },
-  "5": {
+  "4": {
     "name": "(Restaurant)",
     "colour": "#4b4b4b"
   },
-  "6": {
+  "5": {
     "name": "(Bar)",
     "colour": "#4b4b4b"
   },
-  "7": {
+  "6": {
     "name": "(Club)",
     "colour": "#4b4b4b"
   },
-  "8": {
+  "7": {
     "name": "(Venue)",
     "colour": "#4b4b4b"
   },
-  "9": {
+  "8": {
     "name": "(Museum)",
     "colour": "#4b4b4b"
   },
-  "10": {
+  "9": {
     "name": "(Airline)",
     "colour": "#4b4b4b"
   },
-  "11": {
+  "10": {
     "name": "(Client)",
     "colour": "#4b4b4b"
   }

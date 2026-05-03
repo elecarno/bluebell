@@ -485,7 +485,7 @@
                   <button on:click={() => {show_add_pay = true}}>Add</button>
                 </div>
                 <div class="con-scrollbox">
-                  {#each Object.keys(payees) as pay}
+                  {#each Object.keys(payees).sort((a, b) => payees[a].name.localeCompare(payees[b].name)) as pay}
                     <div class="btn-payee" style="background-color: {payees[pay].colour}">
                       <div style="display: flex; flex-direction: row; gap: 4px">
                         <p style="margin-top: 0; margin-bottom: 4px; width: 100%"><b>{payees[pay].name}</b></p>
@@ -536,8 +536,8 @@
           <hr>
 
           <div class="btn-tr" style="color: rgba(255, 255, 255, 0.87)">
-            <span class="tr-entry" style="width: 75px;"></span>
-            <span class="tr-entry" style="width: 200px;">Amount</span>
+            <span class="tr-entry" style="width: 72px;"></span>
+            <span class="tr-entry" style="width: 224px;">Amount</span>
             <span class="tr-entry">Account</span>
             <span class="tr-entry">Payee</span>
             <span class="tr-entry" style="width: 60%">Tags</span>
@@ -573,8 +573,9 @@
               <div class="pan-dialog">
                 <h2>Add Account</h2>
                 <span>Name </span><input type="text" bind:value={select_acc_name}>
-                <!-- <span>Colour </span><input type="text"> -->
-                <ColorPicker bind:hex={select_acc_col}/>
+                <div class="con-colorpicker">
+                  <ColorPicker bind:hex={select_acc_col}/>
+                </div>
                 <hr>
                 <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {add_account()}}>Add</button>
                 <button style="margin-bottom: 24px;" on:click={() => {show_add_acc = false}}>Close</button>
@@ -585,8 +586,10 @@
             <div class="pan-dialog">
               <h2>Add Payee</h2>
               <span>Name </span><input type="text" bind:value={select_pay_name}>
-              <!-- <span>Colour </span><input type="text"> -->
-              <ColorPicker bind:hex={select_pay_col}/>
+              <div class="con-colorpicker">
+                <ColorPicker bind:hex={select_pay_col}/>
+              </div>
+              
               <hr>
               <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {add_payee()}}>Add</button>
               <button style="margin-bottom: 24px;" on:click={() => {show_add_pay = false}}>Close</button>
@@ -621,7 +624,9 @@
           <div class="pan-dialog" style="pointer-events: all;">
             <h2>Edit Account</h2>
             <span>Name </span><input type="text" bind:value={edit_acc_name}>
-            <ColorPicker bind:hex={edit_acc_col}/>
+            <div class="con-colorpicker">
+              <ColorPicker bind:hex={edit_acc_col}/>
+            </div>
             <hr>
             <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {edit_acc_submit()}}>Submit</button>
             <button style="margin-bottom: 24px;" on:click={() => {show_edit_acc = false}}>Close</button>
@@ -635,7 +640,9 @@
           <div class="pan-dialog" style="pointer-events: all;">
             <h2>Edit Payee</h2>
             <span>Name </span><input type="text" bind:value={edit_pay_name}>
-            <ColorPicker bind:hex={edit_pay_col}/>
+            <div class="con-colorpicker">
+              <ColorPicker bind:hex={edit_pay_col}/>
+            </div>
             <hr>
             <button style="margin-top: 12px; margin-bottom: 6px" on:click={() => {edit_pay_submit()}}>Submit</button>
             <button style="margin-bottom: 24px;" on:click={() => {show_edit_pay = false}}>Close</button>
@@ -718,6 +725,11 @@
 .pan-dialog span {
   margin-top: 8px;
   margin-bottom: 4px;
+}
+
+.con-colorpicker {
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 /* LEFT PANEL ------------------------------------------------------------------ */

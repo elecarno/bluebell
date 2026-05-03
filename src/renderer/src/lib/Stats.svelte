@@ -639,15 +639,24 @@
             <button on:click={update_from_filters}>Update</button>
         </div>
         <div class="con-totals">
-            <span>Income: £{totals.income.toFixed(2)}</span>
-            <span>Expenses: £{totals.expenses.toFixed(2)}</span>
-            <span>Net: £{totals.net.toFixed(2)}</span>
+            <span>
+                Income: 
+                <span class="mono">{totals.income.toFixed(2)} {fx.base}</span>
+            </span>
+            <span>
+                Expenses: 
+                <span class="mono">{totals.expenses.toFixed(2)} {fx.base}</span>
+            </span>
+            <span>
+                Net: 
+                <span class="mono">{totals.net.toFixed(2)} {fx.base}</span>
+            </span>
         </div>
     </div>  
     <!-- BAR & PIE -->
     <div class="con-bar-pie">
         <!-- BAR -->
-        <div class="con-chart" style="width: 70%; border-top-right-radius: 8px; border-bottom-right-radius: 8px">
+        <div class="con-chart" style="width: 100%; border-top-right-radius: var(--radius-0); border-bottom-right-radius: var(--radius-0)">
             <select bind:value={bar_mode}>
                 <option value="stacked">Stacked</option>
                 <option value="net">Net</option>
@@ -659,7 +668,7 @@
             </div>
         </div>
         <!-- PIE -->
-        <div class="con-chart" style="width: 30%; border-top-left-radius: 8px; border-bottom-left-radius: 8px">
+        <!-- <div class="con-chart" style="width: 30%; border-top-left-radius: 8px; border-bottom-left-radius: 8px">
             <select bind:value={pie_mode}>
                 <option value="net_by_tag">Net</option>
                 <option value="split_by_tag">Income / Expenses</option>
@@ -669,7 +678,7 @@
             <div class="con-chart-comp">
                 <Chart type="pie" data={pie_data} options={pie_options}/>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="con-line">
         <div class="con-chart-comp">
@@ -696,7 +705,6 @@
 
     gap: 8px;
 
-    /* padding: 8px; */
     padding-top: 0px;
 }
 
@@ -709,10 +717,10 @@
     justify-content: stretch;
 
     gap: 12px;
-    background-color: #333333;
+    background-color: var(--panel-1);
     padding: 8px;
 
-    border-bottom-right-radius: 8px;
+    border-bottom-right-radius: var(--radius-0);
 }
 
 .con-totals {
@@ -722,11 +730,11 @@
     justify-content: center;
     
     width: 50%;
-    gap: 12px;
-    background-color: #333333;
+    gap: 32px;
+    background-color: var(--panel-1);
     padding: 8px;
 
-    border-bottom-left-radius: 8px;
+    border-bottom-left-radius: var(--radius-0);
 }
 
 .con-chart {
@@ -736,7 +744,7 @@
     justify-content: center;
     gap: 8px;
 
-    background-color: #333333;
+    background-color: var(--panel-1);
 }
 
 .con-bar-pie {
@@ -758,7 +766,7 @@
     height: 40%;
     gap: 8px;
 
-    background-color: #333333;
+    background-color: var(--panel-1);
 }
 
 .con-chart-comp {

@@ -40,9 +40,9 @@
     "JPY": 1
   }
 
-  // MOUNT
-  // Select Folder
-  async function selectFolder() {
+
+  // MOUNT -----------------------------------------------------------------------------------------
+  async function select_folder() {
     selecting = true;
 
     try {
@@ -61,7 +61,7 @@
         console.log('Set folderPath:', newPath);
 
         console.log('trigger load from select');
-        await loadData();
+        await load_data();
       }
     } catch (err) {
       console.error('Error selecting folder:', err);
@@ -71,7 +71,7 @@
     }
   }
 
-  async function loadData() {
+  async function load_data() {
     console.log("attempt to load data");
     const trRaw = await window.electron.json.read('transactions.json');
     const accRaw = await window.electron.json.read('accounts.json');
@@ -125,7 +125,7 @@
     const current = get(folderPath);
     if (current) {
       console.log("trigger load from mount (initial get)", current);
-      loadData();
+      load_data();
       selecting = false;
       console.log("set selecting to", selecting);
     }
@@ -133,7 +133,7 @@
     const unsub = folderPath.subscribe(fp => {
       if (fp && fp !== current) {
         console.log("trigger load from mount (subscribe)", fp);
-        loadData();
+        load_data();
         selecting = false;
         console.log("set selecting to", selecting);
       }
@@ -142,7 +142,8 @@
     return () => unsub();
   });
 
-  // ACC / PAY ADD
+
+  // ACCOUNT or PAYEE ADD --------------------------------------------------------------------------
   let select_acc_name = ""
   let select_acc_col = "#4b4b4b"
 
@@ -173,9 +174,10 @@
     save_data()
   }
 
-  // TRANSACTION ADD
-  let select_account = "0"
-  let select_payee = "0"
+
+  // TRANSACTION ADD -------------------------------------------------------------------------------
+  let select_account = "-1"
+  let select_payee = "-1"
   let select_currency = fx.base
   let select_amount = 0
   let select_tags = ""
@@ -204,7 +206,10 @@
     save_data()
   }
 
-  // TRANSACTION EDIT
+  update_left_panel()
+
+
+  // TRANSACTION EDIT ------------------------------------------------------------------------------
   let edit_id = "xxxxx"
   let edit_account = "0"
   let edit_payee = "0"
@@ -252,7 +257,8 @@
     save_data()
   }
 
-  // EDIT ACCOUNT / PAYEE
+  
+  // EDIT ACCOUNT or PAYEE -------------------------------------------------------------------------
   let edit_acc_id = 0
   let edit_acc_name = ""
   let edit_acc_col = "#4b4b4b"
@@ -320,7 +326,8 @@
     total_base = calc_total_base(currency_totals)
   }
 
-  // DATA HANDLING
+
+  // DATA HANDLING ---------------------------------------------------------------------------------
   function calc_totals() {
     let totals = {}
     for (const tr in transactions) {
@@ -391,12 +398,13 @@
     return pay_totals
   }
 
-  // DATA GETTING
+
+  // DATA GETTING ----------------------------------------------------------------------------------
   function get_acc_name(acc_id){
     if (acc_id in accounts){
       return accounts[acc_id].name
     } else {
-      return "Default"
+      return "Not Selected"
     }
   }
 
@@ -404,7 +412,7 @@
     if (pay_id in payees){
       return payees[pay_id].name
     } else {
-      return "N/A"
+      return "Not Selected"
     }
   }
 </script>
@@ -414,71 +422,98 @@
     <div>
       <div class="con-overview">
         <div class="con-left">
-            <!-- BALANCES -->
+          <!-- SETTINGS ------------------------------------------------------------------------ -->
+          <div class="pan-settings">
+            <div style="width: 100%; display: flex; flex-direction: row; gap: 8px">
+              <button class="btn-page" on:click={select_folder}>Set Data Folder</button>
+              <button class="btn-page" on:click={() => {show_stats = true}}>Statistics</button>
+            </div>
+            <p class="mono">{$folderPath}</p>
+          </div>
+
+          <!-- BALANCES ------------------------------------------------------------------------ -->
           <div class="pan-balances">
-            <!-- Currencies -->
-              <h2>Total ({fx.base}): {total_base}</h2>
-              <div class="con-totals">
+              <h2>
+                Total: <span class="mono">{total_base} {fx.base}</span>
+              </h2>
+              <hr>
+              <div class="con-currency-totals">
                 {#each Object.keys(currency_totals) as cur}
-                  <span style="width: 100%;">{cur}: {currency_totals[cur].toFixed(2)}</span><br>
+                  <p class="mono" style="width: 100%;"> {cur}: {currency_totals[cur].toFixed(2)}</p>
                 {/each}
               </div>
-              <div style="width: 100%; display: flex; flex-direction: row; gap: 6px">
-                <button class="btn-page" on:click={selectFolder}>Set / Change Data Folder</button>
-                <button class="btn-page" on:click={() => {show_stats = true}}>Statistics</button>
-              </div>
-              <span style="font-family: monospace;">{$folderPath}</span>
           </div>
-          <!-- Accounts & Payees -->
-          <div class="pan-acc-pay">
+          
+          <!-- ACCOUNTS & PAYEES -->
+          <div class="con-acc-pay">
             <!-- Accounts -->
             <div class="con-accounts" data-mdb-perfect-scrollbar='true'>
-              <h3>Accounts</h3>
-              <button on:click={() => {show_add_acc = true}}>Add</button>
-              <hr>
-              <div class="con-scrollbox">
-                {#each Object.keys(accounts) as acc}
-                  <div class="btn-account" style="background-color: {accounts[acc].colour}">
-                    <div style="display: flex; flex-direction: row; gap: 4px">
-                      <h3 style="margin: 0; width: 100%">{accounts[acc].name}</h3>
-                      <button on:click={() => {select_account = acc; edit_account = acc}}>Set</button>
-                      <button on:click={() => {edit_acc_open(acc)}}>Edit</button>
+              <div class="pan-accounts-list">
+                <div class="con-acc-pay-header">
+                  <h3>Accounts</h3>
+                  <button on:click={() => {show_add_acc = true}}>Add</button>
+                </div>
+                <div class="con-scrollbox">
+                  {#each Object.keys(accounts) as acc}
+                    <div class="btn-account" style="background-color: {accounts[acc].colour}">
+                      <div style="display: flex; flex-direction: row; gap: 4px">
+                        <h3 style="margin: 0; width: 100%">{accounts[acc].name}</h3>
+                        <button on:click={() => {select_account = acc; edit_account = acc}}>Set</button>
+                        <button on:click={() => {edit_acc_open(acc)}}>Edit</button>
+                      </div>
+                      <span>
+                        Total:
+                        <span class="mono">{calc_total_base(calc_acc_totals(acc)).toFixed(2)} {fx.base}</span>
+                      </span>
                     </div>
-                    <span>Total ({fx.base}): {calc_total_base(calc_acc_totals(acc)).toFixed(2)}</span>
-                    <hr>
-                    {#each Object.keys(calc_acc_totals(acc)) as cur}
-                      <span>{cur}: {calc_acc_totals(acc)[cur].toFixed(2)}</span><br>
-                    {/each}
-                  </div>
+                  {/each}
+                </div>
+              </div>
+              <div class="pan-accounts-selected">
+                <h3>{get_acc_name(select_account)}</h3>
+                {#each Object.keys(calc_acc_totals(select_account)) as cur}
+                  <p>{cur}: {calc_acc_totals(select_account)[cur].toFixed(2)}</p>
                 {/each}
               </div>
             </div>
 
             <!-- Payees -->
             <div class="con-payees" data-mdb-perfect-scrollbar='true'>
-              <h3>Payees</h3>
-              <button on:click={() => {show_add_pay = true}}>Add</button>
-              <hr>
-              <div class="con-scrollbox">
-                {#each Object.keys(payees) as pay}
-                  <div class="btn-payee" style="background-color: {payees[pay].colour}">
-                    <div style="display: flex; flex-direction: row; gap: 4px">
-                      <p style="margin-top: 0; margin-bottom: 4px; width: 100%"><b>{payees[pay].name}</b></p>
-                      <button on:click={() => {select_payee = pay; edit_payee = pay}}>Set</button>
-                      <button on:click={() => {edit_pay_open(pay)}}>Edit</button>
-                    </div>
-                    <span>Sen: {Math.abs(calc_pay_totals(pay)["exp"]).toFixed(2)}</span><br>
-                    <span>Rec: {calc_pay_totals(pay)["inc"].toFixed(2)}</span>
+              <div class="pan-payees-list">
+                <div class="con-acc-pay-header">
+                  <h3>Payees</h3>
+                  <button on:click={() => {show_add_pay = true}}>Add</button>
                 </div>
-                {/each}
+                <div class="con-scrollbox">
+                  {#each Object.keys(payees) as pay}
+                    <div class="btn-payee" style="background-color: {payees[pay].colour}">
+                      <div style="display: flex; flex-direction: row; gap: 4px">
+                        <p style="margin-top: 0; margin-bottom: 4px; width: 100%"><b>{payees[pay].name}</b></p>
+                        <button on:click={() => {select_payee = pay; edit_payee = pay}}>Set</button>
+                        <button on:click={() => {edit_pay_open(pay)}}>Edit</button>
+                      </div>
+                  </div>
+                  {/each}
+                </div>
+              </div>
+              <div class="pan-payees-selected">
+                <h3>{get_pay_name(select_payee)}</h3>
+                <p>
+                  Sen: 
+                  <span class="mono">{Math.abs(calc_pay_totals(select_payee)["exp"]).toFixed(2)} {fx.base}</span>
+                </p>
+                <p>
+                  Rec: 
+                  <span class="mono">{calc_pay_totals(select_payee)["inc"].toFixed(2)} {fx.base}</span>
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- TRANSACTIONS -->
+
+        <!-- TRANSACTIONS ---------------------------------------------------------------------- -->
         <div class="pan-transactions">
-          <h3>Transactions</h3>
           <div style="display: flex; flex-direction: row; gap: 12px; justify-content: stretch;">
             <div>
               <div style="display: flex; flex-direction: row; gap: 12px; margin-top: 6px;">
@@ -517,19 +552,20 @@
                 class:tr-green={transactions[key].amount >= 0}
                 on:click={() => {edit_tr_open(key)}}
                 >
-                <span class="tr-entry" style="width: 75px;">{transactions[key].currency}</span>
-                <span class="tr-entry" style="width: 200px;">{Math.abs(transactions[key].amount).toFixed(2)}</span>
+                <span class="tr-entry" style="width: 72px;">{transactions[key].currency}</span>
+                <span class="tr-entry mono" style="width: 224px;">{Math.abs(transactions[key].amount).toFixed(2)}</span>
                 <span class="tr-entry">{accounts[transactions[key].account].name}</span>
                 <span class="tr-entry">{payees[transactions[key].payee].name}</span>
                 <span class="tr-entry" style="font-size: 12px; width: 60%">{transactions[key].tags.join(', ')}</span>
-                <span class="tr-entry tr-mono" style="width: 150px;">{transactions[key].timestamp}</span>
-                <span class="tr-entry tr-mono" style="text-align: right; width: 150px;">{key.slice(0, 5)}</span>
+                <span class="tr-entry mono" style="width: 170px;">{transactions[key].timestamp}</span>
+                <span class="tr-entry mono" style="text-align: right; width: 150px;">{key.slice(0, 5)}</span>
               </button>
             {/each}
           </div>
         </div>
 
-        <!-- DIALOGS -->
+
+        <!-- DIALOGS --------------------------------------------------------------------------- -->
         {#if show_add_acc || show_add_pay}
           <div class="bg-darken">
             <!-- Account -->
@@ -561,7 +597,7 @@
 
         <!-- Transaction -->
         {#if show_edit_tr}
-        <div class="bg-darken" style="background-color: rgba(0, 0, 0, 0); pointer-events: none;">
+        <div class="bg-darken" style="pointer-events: none;">
           <div class="pan-dialog" style="pointer-events: all;">
             <h2 style="margin-bottom: 4px;">Edit Transaction</h2>
             <span>ID: {edit_id}</span>
@@ -579,10 +615,9 @@
         </div>
         {/if}
 
-
         <!-- Account Edit -->
         {#if show_edit_acc}
-        <div class="bg-darken" style="background-color: rgba(0, 0, 0, 0); pointer-events: none;">
+        <div class="bg-darken" style="pointer-events: none;">
           <div class="pan-dialog" style="pointer-events: all;">
             <h2>Edit Account</h2>
             <span>Name </span><input type="text" bind:value={edit_acc_name}>
@@ -596,7 +631,7 @@
 
         <!-- Payee Edit -->
         {#if show_edit_pay}
-        <div class="bg-darken" style="background-color: rgba(0, 0, 0, 0); pointer-events: none;">
+        <div class="bg-darken" style="pointer-events: none;">
           <div class="pan-dialog" style="pointer-events: all;">
             <h2>Edit Payee</h2>
             <span>Name </span><input type="text" bind:value={edit_pay_name}>
@@ -609,6 +644,8 @@
         {/if}
       </div>
     </div>
+  
+  <!-- STATS PAGE ------------------------------------------------------------------------------ -->
   {:else}
       <div class="con-stats">
         <Stats on:close={() => {show_stats = false}} 
@@ -621,14 +658,17 @@
 </main>
 
 <style>
+/* GENERAL --------------------------------------------------------------------- */
 .con-stats,
 .con-overview {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: stretch;
+
   width: 100%;
   height: 100vh;
+
   gap: 8px;
 }
 
@@ -639,11 +679,17 @@
   height: 24px;
 }
 
+.con-scrollbox {
+  width: 100%;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
 .bg-darken {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.0);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -651,14 +697,16 @@
 }
 
 .pan-dialog {
-  background-color: #333333;
-  width: 20%;
-  border-radius: 8px;
-  border: 2px #222222 solid;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
+
+  background-color: var(--panel-1);
+  width: 20%;
+  border-radius: var(--radius-0);
+  border: 2px var(--panel-0) solid;
+
   padding-left: 24px;
   padding-right: 24px;
 }
@@ -672,34 +720,154 @@
   margin-bottom: 4px;
 }
 
-.con-totals {
+/* LEFT PANEL ------------------------------------------------------------------ */
+.con-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  height: 100%;
+  width: 35%;
+}
+
+.pan-settings {
+  background-color: var(--panel-1);
+
+  padding: var(--padding-main);
+  padding-left: var(--padding-side-outer);
+}
+.pan-settings p {
+  margin: 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  font-size: 12px;
+}
+
+.pan-balances {
+  background-color: var(--panel-1);
+
+  padding: 16px;
+  padding-left: var(--padding-side-outer);
+  padding-right: var(--padding-main);
+
+  border-bottom-right-radius: var(--radius-0);
+}
+.pan-balances h2 {
+  margin: 0;
+  margin-bottom: 4px;
+  
+  font-size: 20px;
+}
+.pan-balances p {
+  margin: 0;
+}
+
+.con-currency-totals {
   display: flex;
   flex-direction: row;
   justify-content: stretch;
 }
 
-.con-left {
+.con-acc-pay {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+
+  height: 100%;
+  
+  border-top-right-radius: var(--radius-0);
+
+  overflow: hidden;
+}
+
+.con-accounts,
+.con-payees {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  
+  width: 100%;
+}
+
+.pan-accounts-list,
+.pan-payees-list {
+  background-color: var(--panel-1);
+
+  display: flex;
+  flex-direction: column;
+
   height: 100%;
-  width: 35%;
+
+  padding: var(--padding-main);
+
+  overflow: hidden;
+}
+.pan-accounts-list {
+  padding-left: var(--padding-side-outer);
 }
 
-.pan-balances {
-  background-color: #333333;
-  padding: 8px;
-  padding-left: 24px;
-  padding-right: 8px;
-  box-sizing: border-box;
-  flex: 0 0 auto;
+.con-acc-pay-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-  border-bottom-right-radius: 8px;
+  margin-bottom: 8px;
+}
+.con-acc-pay-header h3 {
+  margin: 0;
+  margin-top: 4px;
+  width: 100%;
+}
+.con-acc-pay-header button {
+  width: 64px;
 }
 
+.pan-accounts-selected,
+.pan-payees-selected {
+  background-color: var(--panel-1);
+
+  min-height: 96px;
+
+  padding: var(--padding-main);
+}
+.pan-accounts-selected {
+  padding-left: var(--padding-side-outer);
+}
+.pan-payees-selected h3,
+.pan-accounts-selected h3 {
+  margin: 0;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.pan-payees-selected p,
+.pan-accounts-selected p {
+  margin: 0;
+}
+
+.btn-account,
+.btn-payee {
+  padding: var(--padding-main);
+  border-radius: var(--radius-0);
+  margin-bottom: 4px;
+  width: 92%;
+  text-align: left;
+}
+.btn-account button,
+.btn-payee button {
+  border: var(--panel-3) 1px solid;
+  width: 45px;
+}
+.btn-account button:hover,
+.btn-payee button:hover {
+  background-color: var(--panel-3);
+}
+
+/* TRANSATIONS PANEL ----------------------------------------------------------- */
 .pan-transactions {
-  background-color: #333333;
-  padding: 8px;
-  padding-right: 24px;
+  background-color: var(--panel-1);
+  padding: var(--padding-main);
+  padding-right: var(--padding-side-outer);
   width: 65%;
   height: 100vh;
   box-sizing: border-box;
@@ -708,56 +876,10 @@
   overflow: hidden;
 }
 
-.con-accounts,
-.con-payees {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
 .con-tr-list {
   /* flex-grow: 1; */
   overflow-y: scroll;
-  border-radius: 8px;
-}
-
-.con-scrollbox {
-  width: 100%;
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-.btn-account,
-.btn-payee {
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 4px;
-  width: 90%;
-  text-align: left;
-}
-.btn-account button,
-.btn-payee button {
-  border: gray 1px solid;
-  width: 45px;
-}
-.btn-account button:hover,
-.btn-payee button:hover {
-  background-color: #333;
-}
-
-.pan-acc-pay {
-  display: flex;
-  flex-direction: row;
-  background-color: #333333;
-  padding: 8px;
-  padding-left: 16px;
-  gap: 12px;
-  margin-top: 8px;
-  height: 100%;
-  overflow: hidden;
-
-  border-top-right-radius: 8px;
+  border-radius: var(--radius-0);
 }
 
 .btn-tr {
@@ -765,7 +887,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: stretch;
-  color: #111;
+  color: var(--black);
   height: 28px;
   padding: 5px;
   padding-left: 15px;
@@ -780,10 +902,7 @@
 
 .tr-entry {
   width: 30%;
-}
-
-.tr-mono {
-  font-family: monospace;
+  font-size: 14px;
 }
 
 .tr-green {

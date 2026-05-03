@@ -1,8 +1,5 @@
 :root {
-  font-family: "Atkinson Hyperlegible", sans-serif;
-
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  font-family: "Atkinson Hyperlegible Next", sans-serif;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -10,47 +7,62 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* fonts */
-  --font-body-sans: "Atkinson Hyperlegible", sans-serif;
-  --font-body-mono: "Red Hat Mono", monospace;
+  --font-body-sans: "Atkinson Hyperlegible Next", sans-serif;
+  --font-body-mono: "Atkinson Hyperlegible Mono", monospace;
   
-  --font-size-body: 15px;
+  --font-size-body: 14px;
+
+  /* palette */
+  --white: #ececec;
+  --black: #0c0c0c;
+  --panel-0: #242424;
+  --panel-1: #383838;
+  --panel-2: #4b4b4b;
+  --panel-3: #5e5e5e;
+
+  --radius-0: 2px;
+
+  --padding-main: 8px;
+  --padding-side-outer: 24px;
+
+  
+  /* body and text colours */
+  color: var(--white);
+  background-color: var(--panel-0);
 }
 
+/* Fonts */
 @font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('./assets/AtkinsonHyperlegible-Regular.ttf') format('woff2');
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('./assets/AtkinsonHyperlegibleNext-VariableFont_wght.ttf') format('woff2');
   font-weight: 400;
   font-style: normal;
 }
-
 @font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('./assets/AtkinsonHyperlegible-Bold.ttf') format('woff2');
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('./assets/AtkinsonHyperlegibleNext-VariableFont_wght.ttf') format('woff2');
   font-weight: 600;
   font-style: normal;
 }
-
 @font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('./assets/AtkinsonHyperlegible-Italic.ttf') format('woff2');
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('./assets/AtkinsonHyperlegibleNext-Italic-VariableFont_wght.ttf') format('woff2');
   font-weight: 400;
   font-style: italic;
 }
-
-
 @font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('./assets/AtkinsonHyperlegible-BoldItalic.ttf') format('woff2');
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('./assets/AtkinsonHyperlegibleNext-Italic-VariableFont_wght.ttf') format('woff2');
   font-weight: 600;
   font-style: italic;
 }
-
 @font-face {
-  font-family: 'Red Hat Mono';
-  src: url('./assets/RedHatMono-VariableFont_wght.ttf') format('woff2');
+  font-family: 'Atkinson Hyperlegible Mono';
+  src: url('./assets/AtkinsonHyperlegibleMono-VariableFont_wght.ttf') format('woff2');
   font-weight: 400;
   font-style: normal;
 }
+
 
 html, body, main {
   height: 100%;
@@ -58,29 +70,32 @@ html, body, main {
 }
 
 button {
-  background-color: #4b4b4b;
-  color: rgba(255, 255, 255, 0.87);
+  background-color: var(--panel-2);
+  color: var(--white);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-0);
   min-height: 24px;
+
+  font-family: "Atkinson Hyperlegible Next", sans-serif;
 }
 
 button:hover {
-  background-color: #3f3f3f;
+  background-color: var(--panel-3);
   cursor: pointer;
 }
 
 hr {
   width: 100%;
+  border: 1px solid var(--panel-3);
 }
 
 .mono { 
-  font-family: "Red Hat Mono", monospace;
+  font-family: "Atkinson Hyperlegible Mono", monospace;
 }
 
 /* Make scrollbar background transparent */
 ::-webkit-scrollbar {
-  width: 8px; /* or whatever you prefer */
+  width: 6px; /* or whatever you prefer */
   background: transparent;
 }
 

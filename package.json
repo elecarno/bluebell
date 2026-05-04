@@ -1,7 +1,7 @@
 {
   "name": "bluebell",
-  "version": "1.1.0",
-  "description": "A personal finance manager that prioritises data control and organisation. ",
+  "version": "2.0.0",
+  "description": "A personal finance manager that prioritises data control and organisation.",
   "main": "./out/main/index.js",
   "author": "elecarno.com",
   "homepage": "https://electron-vite.org",
